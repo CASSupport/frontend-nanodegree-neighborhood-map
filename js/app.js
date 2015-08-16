@@ -7,62 +7,128 @@ var map;
 
 $(document).ready(function () {
    
-   createMap();
-   ko.applyBindings(viewModel);
+    // createMap();
+
+    ko.applyBindings(viewModel);
 });
 
 /* ======= Model ======= */
 
-initialCats = [
+initialPlaces = [
     {
         clickCount : 0,
-        name : 'Tabby',
-        imgSrc : 'img/434164568_fea0ad4013_z.jpg',
-        imgAttribution : 'https://www.flickr.com/photos/bigtallguy/434164568',
-        nicknames: ['Tabtab', 'T-Bone', 'Mr. T'],
-        location: 'Atlanta, Ga'
+        name : 'Cheddar\'s Casual Cafe',
+        url : 'http://www.cheddars.com/',
+        imgSrc : 'http://www.cheddars.com/wp-content/uploads/2012/02/hostess1.jpg',
+        imgAttribution : 'http://www.cheddars.com/',
+        address : 'Aurora, CO 80016'
     },
     {
         clickCount : 0,
-        name : 'Tiger',
-        imgSrc : 'img/4154543904_6e2428c421_z.jpg',
-        imgAttribution : 'https://www.flickr.com/photos/xshamx/4154543904',
-        nicknames: ['Tigger'],
-        location: 'Denver, Co'
+        name : 'Dairy Queen / Orange Julius',
+        url : 'http://www.dairyqueen.com/',
+        imgSrc : '',
+        imgAttribution : '',
+        address : 'Foxfield, CO'
     },
     {
         clickCount : 0,
-        name : 'Scaredy',
-        imgSrc : 'img/22252709_010df3379e_z.jpg',
-        imgAttribution : 'https://www.flickr.com/photos/kpjas/22252709',
-        nicknames: ['Fraidy'],
-        location: 'Seattle, Wa'
+        name : 'Dusty Boot Foxfield',
+        url : 'http://dustybootfoxfield.com/',
+        imgSrc : '',
+        imgAttribution : '',
+        address : 'Foxfield, CO'
     },
     {
         clickCount : 0,
-        name : 'Shadow',
-        imgSrc : 'img/1413379559_412a540d29_z.jpg',
-        imgAttribution : 'https://www.flickr.com/photos/malfet/1413379559',
-        nicknames: ['Nighty'],
-        location: 'Hershey, Pa'
+        name : 'AMC Arapahoe Crossing 16',
+        url : 'https://www.amctheatres.com/movie-theatres/denver/amc-arapahoe-crossing-16',
+        imgSrc : '',
+        imgAttribution : '',
+        address : 'Foxfield, CO'
     },
     {
         clickCount : 0,
-        name : 'Sleepy',
-        imgSrc : 'img/9648464288_2516b35537_z.jpg',
-        imgAttribution : 'https://www.flickr.com/photos/onesharp/9648464288',
-        nicknames: ['Zzzzz'],
-        location: 'Orlando, Fl'
+        name : 'Old Chicago Arapahoe Crossings',
+        url : 'http://www.oldchicago.com/locations/aurora-arapahoe-crossing',
+        imgSrc : '',
+        imgAttribution : '',
+        address : 'Foxfield, CO'
+    },
+    {
+        clickCount : 0,
+        name : 'Golden Corral',
+        url : 'http://www.goldencorral.com/',
+        imgSrc : '',
+        imgAttribution : '',
+        address : 'Foxfield, CO'
+    },
+    {
+        clickCount : 0,
+        name : 'Target',
+        url : 'http://www.target.com/sl/aurora-south--target-store/2458#?afid=storeloc&cpng=CO&Inm=aurora-south_2458',
+        imgSrc : '',
+        imgAttribution : '',
+        address : 'Foxfield, CO'
+    },
+    {
+        clickCount : 0,
+        name : 'Dragonfly Asian Bistro Cornerstar',
+        url : 'http://www.dragonflyasian.com/',
+        imgSrc : '',
+        imgAttribution : '',
+        address : 'Foxfield, CO'
+    },
+    {
+        clickCount : 0,
+        name : 'AT&T Cornerstar',
+        url : '',
+        imgSrc : '',
+        imgAttribution : '',
+        address : 'Foxfield, CO'
+    },    
+    {
+        clickCount : 0,
+        name : 'King Soopers Arapahoe Crossings',
+        url : 'https://www.kingsoopers.com/',
+        imgSrc : '',
+        imgAttribution : '',
+        address : 'Foxfield, CO'
+    },
+    {
+        clickCount : 0,
+        name : 'Conoco Arapahoe Crossings',
+        url : 'http://www.conocophillips.com/Pages/default.aspx',
+        imgSrc : '',
+        imgAttribution : '',
+        address : 'Foxfield, CO'
+    },
+    {
+        clickCount : 0,
+        name : 'Jackson\'s All American Sports Grill',
+        url : 'http://jacksonsallamerican.com/',
+        imgSrc : '',
+        imgAttribution : '',
+        address : 'Foxfield, CO'
+    },
+    {
+        clickCount : 0,
+        name : 'Dick\'s Sporting Goods Cornerstar',
+        url : 'http://stores.dickssportinggoods.com/co/aurora/366/',
+        imgSrc : '',
+        imgAttribution : '',
+        address : 'Foxfield, CO'
     }
 ];
 
 
-var Cat = function(data) {
+var Place = function(data) {
     this.clickCount = ko.observable(data.clickCount);
     this.name = ko.observable(data.name);
     this.imgSrc = ko.observable(data.imgSrc);
     this.imgAttribution = ko.observable(data.imgAttribution);
     this.nicknames = ko.observableArray(data.nicknames);
+    this.address = ko.observable(data.address);
 
     this.title = ko.computed(function() {
         var title;
@@ -81,27 +147,79 @@ var ViewModel = function() {
     self.Lat = ko.observable(12.24);
     self.Lng = ko.observable(24.54);
 
-    this.catList = ko.observableArray([]);
+    this.placeList = ko.observableArray([]);
+    this.searchFilter = ko.observable("");
 
-    initialCats.forEach(function(catItem) {
-        self.catList.push( new Cat(catItem) );
-    });
-
-    self.catList.sort(function(a,b) {
+    initialPlaces.sort(function(a,b) {
         // use a.name() because of the observables!
-        return (a.name() > b.name()) ? 1 : 
-            ((b.name() < a.name()) ? -1 : 0);
+        var value = a.name == b.name ? 0 : 
+            (a.name < b.name ? -1 : 1);
+        // console.log("Sorting initial: (", value, ") ", a.name, " - ", b.name);
+        return value;   // value used for debuging
     });
 
-    this.currentCat = ko.observable( self.catList()[0] );
+/*
+    initialPlaces.sort(function(a,b) {
+        // use a.name() because of the observables!
+        var value = (a.name > b.name) ? 1 : 
+            ((b.name < a.name) ? -1 : 0);
+        // console.log("Sorting initial: (", value, ") ", a.name, " - ", b.name);
+        return value;   // value used for debuging
+    });
+
+
+    self.placeList.sort(function(a,b) {
+        // use a.name() because of the observables!
+        var nameA = a.name();   // Unpack the observables for comparing
+        var nameB = b.name();
+        var value = (nameA > nameB) ? 1 : 
+            ((nameB < nameA) ? -1 : 0);
+        console.log("Sorting: (", value, ") ", nameA, " - ", nameB);
+
+
+        return value;   // value used for debuging
+    });
+*/
 
     this.incrementCounter = function() {
-        self.currentCat().clickCount(self.currentCat().clickCount() + 1);
+        self.currentPlace().clickCount(self.currentPlace().clickCount() + 1);
     };
 
-    this.setCat = function(clickedCat) {
-        self.currentCat(clickedCat);
+    this.addPlaces = function() {
+
+        self.placeList.removeAll();
+
+        initialPlaces.forEach(function(place) { 
+            var name = place.name.toUpperCase();
+            var filter = self.searchFilter();
+            console.log("Search Filter: ", filter);
+            if (filter != null) {
+                if (name.includes(filter.toUpperCase()))
+                    self.placeList.push( new Place(place) );
+            } else {
+                self.placeList.push( new Place(place) );
+            }
+        });
+
+        initializeMap(self);    // Now re-initialize the map markers
     };
+
+
+    this.setPlace = function(clickedPlace) {
+        // Attempt to show the proper marker.
+        // self.currentPlace(clickedPlace);
+    };
+
+    this.addPlaces();   // Add all places with no filter
+    this.currentPlace = ko.observable( self.placeList()[0] );
+
+    // Call the add places when the search filter has been changed
+    this.searchFilter.subscribe(function () {
+        self.addPlaces();                
+    });
+
+
+
 };
 
 function createMap(){    
@@ -152,3 +270,4 @@ ko.bindingHandlers.map = {
 
 var viewModel = new ViewModel();
 //ko.applyBindings(viewModel);
+initializeMap(viewModel);

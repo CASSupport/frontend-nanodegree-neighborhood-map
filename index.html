@@ -16,41 +16,57 @@
 <body>
 
 	<div class="container">
-		<h1>Tom's Neighborhood Map</h1>
-
-		<div class="row md-col-12"  >
-			<div id="map"></div>
-			<input data-bind="value: Lat" />
-			<input data-bind="value: Lng" />
-			<div data-bind="latitude: viewModel.Lat, longitude:viewModel.Lng, map:map" ></div>			
-		</div>
-
-		<!--
 		<div class="row">
-			<div class="col-md-2">
-				<ul data-bind="foreach: catList">
-					<li data-bind="text: name, click: $parent.setCat"></li>
-				</ul>
+			<h1>Tom's Neighborhood Map</h1>
+
+			<!--	
+			<div class="row md-col-12" id="sampleMap" >
+				<div id="map"></div>
+				<input data-bind="value: Lat" />
+				<input data-bind="value: Lng" />
+				<div data-bind="latitude: viewModel.Lat, longitude:viewModel.Lng, map:map" ></div>			
 			</div>
+			-->
 
-			<div class="col-md-10">
-				<div data-bind="with:currentCat">
+			<div class="row md-col-12" id="map-div" >
 
-					<h2 data-bind="text: name"></h2>
-					<h3 data-bind="text: title"></h3>
-					<div data-bind="text: clickCount"></div>
-					<img class="img-responsive" max-width="320px" src="" alt="cute cat" data-bind="click: $parent.incrementCounter, attr: {src: imgSrc}">
-					<div>
-						<h3>Nicknames:</h3>
-						<ul data-bind="foreach: nicknames">
-							<li data-bind="text: $data"></li>
-						</ul>
+				<div id="map"></div>
+				
+				<div data-bind="latitude: viewModel.Lat, longitude:viewModel.Lng, map:map" ></div>		<	
+			</div>
+			<div class="row md-col-12 input-group">
+				<input type="text" class="form-control" placeholder="Search for..."
+					data-bind="textInput: searchFilter">
+			</div><!-- /input-group -->
+			<ul class="list-group" data-bind="foreach: placeList">
+				<li  data-bind="text: name, click: $parent.setPlace"></li>
+			</ul>
+			<!--
+			<div class="row">
+				<div class="col-md-2">
+					<ul data-bind="foreach: catList">
+						<li data-bind="text: name, click: $parent.setCat"></li>
+					</ul>
+				</div>
+
+				<div class="col-md-10">
+					<div data-bind="with:currentCat">
+
+						<h2 data-bind="text: name"></h2>
+						<h3 data-bind="text: title"></h3>
+						<div data-bind="text: clickCount"></div>
+						<img class="img-responsive" max-width="320px" src="" alt="cute cat" data-bind="click: $parent.incrementCounter, attr: {src: imgSrc}">
+						<div>
+							<h3>Nicknames:</h3>
+							<ul data-bind="foreach: nicknames">
+								<li data-bind="text: $data"></li>
+							</ul>
+						</div>
 					</div>
 				</div>
 			</div>
+			-->
 		</div>
-		-->
-
 
 	</div>
 	<script src="js/lib/knockout-3.2.0.js"></script>

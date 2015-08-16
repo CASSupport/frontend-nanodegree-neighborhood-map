@@ -5,8 +5,8 @@
 
 */
 
-// var googleMap = '<div id="map"></div>';
-
+var googleMap = '<div id="map"></div>';
+var mapMarkers = [];  // Track the map markers
 
 
 /*
@@ -20,7 +20,7 @@ https://developers.google.com/maps/documentation/javascript/reference
 /*
 Start here! initializeMap() is called when page is loaded.
 */
-function initializeMap() {
+function initializeMap(viewModel) {
 
   console.log("Initilizing Map");
 
@@ -28,7 +28,7 @@ function initializeMap() {
   var locations;
 
   var mapOptions = {
-    disableDefaultUI: true
+    disableDefaultUI: false
   };
 
 
@@ -39,29 +39,22 @@ function initializeMap() {
   locationFinder() returns an array of every location string from the JSONs
   written for bio, education, and work.
   */
-  function locationFinder() {
+  function locationFinder(locationList) {
 
     // initializes an empty array
     var locations = [];
 
-    // adds the single location property from bio to the locations array
-    //locations.push(bio.contacts.location);
-    //console.log("bio location: " + bio.contacts.location);
+    // Clear any existing map markers
+    for (var i = 0; i < mapMarkers.length; i++) {
+      mapMarkers[i].setMap(null);
+    }    
 
-    // iterates through school locations and appends each location to
-    // the locations array
+    console.log("locationList: ", locationList);
 
-    // console.log("catList size: " + self.catList[0] );
-
-    console.log("Setting location for Denver");
-    locations.push("Denver, Co");
-    locations.push("San Diego, Ca");
-
-    for (var cat in this.catList) {
-      console.log("cat location: " + cat.location);
-      locations.push(cat.location);
-      
-
+    for (var place in locationList) {
+      // console.log("place is: ", place);
+      // console.log("place address: " + locationList[place].name() + ", " + locationList[place].address());
+      locations.push(locationList[place].name() + " near " + locationList[place].address());
     }
 
     return locations;
@@ -77,7 +70,8 @@ function initializeMap() {
     // The next lines save location data from the search result object to local variables
     var lat = placeData.geometry.location.lat();  // latitude from the place service
     var lon = placeData.geometry.location.lng();  // longitude from the place service
-    var name = placeData.formatted_address;   // name of the place from the place service
+    var name = placeData.name;   // name of the place from the place service
+    var address = placeData.formatted_address;
     var bounds = window.mapBounds;            // current boundaries of the map window
 
     // marker is an object with additional data about the pin for a single location
@@ -87,12 +81,19 @@ function initializeMap() {
       title: name
     });
 
+    toggleBounce(marker);
+    mapMarkers.push(marker);
+
     // infoWindows are the little helper windows that open when you click
     // or hover over a pin on a map. They usually contain more information
     // about a location.
     var infoWindow = new google.maps.InfoWindow({
       // TAN: Added some VERY basic HTML to format the name
-      content: "<b><i>" + name + "</i></b>"
+      content: "<h3>" + name + "</h3>" 
+            + address + "<br>"
+            + (placeData.rating != undefined ? "Rating: " + placeData.rating + "<br>" : "")
+            + (placeData.price_level != undefined ? "Price Level: " + placeData.price_level + "<br>" : "")
+            + "<img src='" + placeData.icon + "' width='20px' height='auto' <br>"
     });
 
     // hmmmm, I wonder what this is about...
@@ -100,7 +101,7 @@ function initializeMap() {
       // your code goes here!
       // TAN: Code added
       infoWindow.open(map, marker);
-
+      toggleBounce(marker);
     });
 
     // this is where the pin actually gets added to the map.
@@ -112,6 +113,14 @@ function initializeMap() {
     map.setCenter(bounds.getCenter());
   }
 
+  function toggleBounce(marker) {
+    if (marker.getAnimation() !== null) {
+      marker.setAnimation(null);
+    } else {
+      marker.setAnimation(google.maps.Animation.BOUNCE);
+    }
+  }
+
   /*
   callback(results, status) makes sure the search returned results for a location.
   If so, it creates a new map marker for that location.
@@ -119,7 +128,7 @@ function initializeMap() {
   function callback(results, status) {
     if (status == google.maps.places.PlacesServiceStatus.OK) {
       createMapMarker(results[0]);
-      // console.log("Created map marker: ", results[0]);
+      console.log("Created map marker: ", results[0]);
     }
   }
 
@@ -151,7 +160,7 @@ function initializeMap() {
   window.mapBounds = new google.maps.LatLngBounds();
 
   // locations is an array of location strings returned from locationFinder()
-  locations = locationFinder();
+  locations = locationFinder(viewModel.placeList() );
 
   // pinPoster(locations) creates pins on the map for each location in
   // the locations array
