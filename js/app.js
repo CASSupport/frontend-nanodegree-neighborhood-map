@@ -1,20 +1,14 @@
+"use strict";
 
-// Sample code to better understand KO and GoogleMaps
-//      http://jsfiddle.net/Wt3B8/23/
-
-//global for map
-var map;
 
 $(document).ready(function () {
-   
-    // createMap();
 
     ko.applyBindings(viewModel);
 });
 
 /* ======= Model ======= */
 
-initialPlaces = [
+var initialPlaces = [
     {
         clickCount : 0,
         name : 'Cheddar\'s Casual Cafe',
@@ -144,10 +138,16 @@ var Place = function(data) {
 
 var ViewModel = function() {
     var self = this;
+    var filterTimeout;
+    this.addingPlaces = false;
+
     self.Lat = ko.observable(12.24);
     self.Lng = ko.observable(24.54);
 
     this.placeList = ko.observableArray([]);
+    this.mapMarkers = ko.observableArray([]);
+    // var mapMarkers = [];  // Track the map markers
+
     this.searchFilter = ko.observable("");
 
     initialPlaces.sort(function(a,b) {
@@ -158,36 +158,29 @@ var ViewModel = function() {
         return value;   // value used for debuging
     });
 
-/*
-    initialPlaces.sort(function(a,b) {
-        // use a.name() because of the observables!
-        var value = (a.name > b.name) ? 1 : 
-            ((b.name < a.name) ? -1 : 0);
-        // console.log("Sorting initial: (", value, ") ", a.name, " - ", b.name);
-        return value;   // value used for debuging
-    });
-
-
-    self.placeList.sort(function(a,b) {
-        // use a.name() because of the observables!
-        var nameA = a.name();   // Unpack the observables for comparing
-        var nameB = b.name();
-        var value = (nameA > nameB) ? 1 : 
-            ((nameB < nameA) ? -1 : 0);
-        console.log("Sorting: (", value, ") ", nameA, " - ", nameB);
-
-
-        return value;   // value used for debuging
-    });
-*/
-
     this.incrementCounter = function() {
         self.currentPlace().clickCount(self.currentPlace().clickCount() + 1);
     };
 
+    this.filterChanged = function() {
+        // Start a timer to allow the user to finish typing
+        //  otherwise the markers are not filtered properly
+        clearTimeout(filterTimeout);    // clear any existing timer
+
+        while (self.addingPlaces) {
+            // Wait until prior add is complete
+            console.log("waiting");
+        }
+
+        
+        filterTimeout = setTimeout(self.addPlaces, 500);
+    };
+
     this.addPlaces = function() {
 
+        self.addingPlaces = true;
         self.placeList.removeAll();
+        self.mapMarkers.removeAll();
 
         initialPlaces.forEach(function(place) { 
             var name = place.name.toUpperCase();
@@ -202,72 +195,37 @@ var ViewModel = function() {
         });
 
         initializeMap(self);    // Now re-initialize the map markers
+
+        self.addingPlaces = false;
     };
 
 
-    this.setPlace = function(clickedPlace) {
-        // Attempt to show the proper marker.
-        // self.currentPlace(clickedPlace);
+    this.setMarker = function(clickedMarker) {
+        // Show the selected marker.
+
+        console.log("clickedMarker: ", clickedMarker.title);
+
+        // initializeMap.createMapMarker.infoWindow.open(map, clickedMarker);
+        // $(clickedMarker).trigger("click");
+
+        // infoWindow.open(map, clickedMarker);
+        initializeMap.toggleBounce(clickedMarker);
     };
 
-    this.addPlaces();   // Add all places with no filter
+    this.addPlaces();
     this.currentPlace = ko.observable( self.placeList()[0] );
 
     // Call the add places when the search filter has been changed
     this.searchFilter.subscribe(function () {
-        self.addPlaces();                
+        self.filterChanged();                
     });
 
 
 
 };
 
-function createMap(){    
-    var elevator;
-    var myOptions = {
-        zoom: 3,
-        center: new google.maps.LatLng(12.24, 24.54),
-        mapTypeId: 'terrain'
-    };
 
-    
-    map = new google.maps.Map($('#map')[0], myOptions);
-    
-}
-
-ko.bindingHandlers.map = {
-    init: function(element, valueAccessor, allBindingsAccessor, viewModel) {
-        // initializeMap();
-
-        console.log("viewModel.Lat: ", viewModel.Lat());
-        console.log("   bindings latitude", allBindingsAccessor() );
-
-        var position = new google.maps.LatLng(
-                allBindingsAccessor().latitude(), 
-                allBindingsAccessor().longitude());
-
-        var marker = new google.maps.Marker({
-            map: allBindingsAccessor().map,
-            position: position,
-            title: name
-        });
-
-        viewModel._mapMarker = marker;
-
-    },
-    update: function(element, valueAccessor, allBindingsAccessor, viewModel) {
-        // Do nothing for now.
-        var latlng = new google.maps.LatLng(
-                allBindingsAccessor().latitude(), 
-                allBindingsAccessor().longitude());
-            viewModel._mapMarker.setPosition(latlng);
-
-        
-    }
-
-};
 
 
 var viewModel = new ViewModel();
-//ko.applyBindings(viewModel);
 initializeMap(viewModel);

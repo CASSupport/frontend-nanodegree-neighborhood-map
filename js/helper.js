@@ -1,3 +1,5 @@
+"use strict";
+
 /* 
     This helper code is reused from the resume project
     The google Maps API will be accessed here.
@@ -6,7 +8,7 @@
 */
 
 var googleMap = '<div id="map"></div>';
-var mapMarkers = [];  // Track the map markers
+
 
 
 /*
@@ -14,7 +16,7 @@ This is the fun part. Here's where we generate the custom Google Map for the web
 See the documentation below for more details.
 https://developers.google.com/maps/documentation/javascript/reference
 */
-// var map;    // declares a global map variable
+var map;    // declares a global map variable
 
 
 /*
@@ -45,8 +47,8 @@ function initializeMap(viewModel) {
     var locations = [];
 
     // Clear any existing map markers
-    for (var i = 0; i < mapMarkers.length; i++) {
-      mapMarkers[i].setMap(null);
+    for (var i = 0; i < viewModel.mapMarkers().length; i++) {
+      viewModel.mapMarkers()[i].setMap(null);
     }    
 
     console.log("locationList: ", locationList);
@@ -82,7 +84,7 @@ function initializeMap(viewModel) {
     });
 
     toggleBounce(marker);
-    mapMarkers.push(marker);
+    viewModel.mapMarkers.push(marker);
 
     // infoWindows are the little helper windows that open when you click
     // or hover over a pin on a map. They usually contain more information
@@ -96,10 +98,10 @@ function initializeMap(viewModel) {
             + "<img src='" + placeData.icon + "' width='20px' height='auto' <br>"
     });
 
-    // hmmmm, I wonder what this is about...
     google.maps.event.addListener(marker, 'click', function() {
-      // your code goes here!
       // TAN: Code added
+
+      console.log("Marker Listner for ", marker);
       infoWindow.open(map, marker);
       toggleBounce(marker);
     });

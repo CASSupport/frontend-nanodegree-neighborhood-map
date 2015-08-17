@@ -38,8 +38,8 @@
 				<input type="text" class="form-control" placeholder="Search for..."
 					data-bind="textInput: searchFilter">
 			</div><!-- /input-group -->
-			<ul class="list-group" data-bind="foreach: placeList">
-				<li  data-bind="text: name, click: $parent.setPlace"></li>
+			<ul class="list-group" data-bind="foreach: mapMarkers">
+				<li data-bind="text: title, click: $parent.setMarker"></li>
 			</ul>
 			<!--
 			<div class="row">
