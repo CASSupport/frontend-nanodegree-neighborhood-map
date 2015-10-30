@@ -104,6 +104,7 @@ function initializeMap(viewModel) {
       clearAllMarkerBounce();
       infoWindow.open(viewModel.map, marker);
       toggleBounce(marker);
+      viewModel.loadWikiElements(marker.title);
     });
 
     google.maps.event.addListener(infoWindow,'closeclick',function(){
@@ -116,6 +117,9 @@ function initializeMap(viewModel) {
       infoWindow: infoWindow,
       isOpen: false
     });
+
+
+
 
 
     // this is where the pin actually gets added to the map.

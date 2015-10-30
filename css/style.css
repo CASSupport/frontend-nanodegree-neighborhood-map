@@ -32,6 +32,11 @@ h3 {
 	color: #747704;
 }
 
+h4 {
+	font-weight: 300;
+	color: #747704;	
+	font-size: 12px;
+}
 
 #map{
     width: 100%;

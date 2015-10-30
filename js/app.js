@@ -224,11 +224,17 @@ var ViewModel = function() {
             clickedMapSite.isOpen = false;
         }
 
+        self.loadWikiElements(clickedMapSite.title);
+
+    };
+
+
+    this.loadWikiElements = function(searchName) {
         // Setup the Wikipedia link information
         // Based on the Udacity video sample presented
         //      in the Building the Move Planner App vide
         var wikiUrl = 'http://en.wikipedia.org/w/api.' +
-                'php?action=opensearch&search=' + clickedMapSite.title + 
+                'php?action=opensearch&search=' + searchName + 
                 '&format=json&callback=wikiCallback';
 
         console.log("wikiUrl: ", wikiUrl);
@@ -264,11 +270,7 @@ var ViewModel = function() {
             }
         })                
 
-
-
     };
-
-
 
 
     this.addPlaces();
