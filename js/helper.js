@@ -7,7 +7,7 @@
 
 */
 
-var googleMap = '<div id="map"></div>';
+// var googleMap = '<div id="map"></div>';
 
 
 
@@ -16,7 +16,7 @@ This is the fun part. Here's where we generate the custom Google Map for the web
 See the documentation below for more details.
 https://developers.google.com/maps/documentation/javascript/reference
 */
-var map;    // declares a global map variable
+// var map;    // declares a global map variable
 
 
 /*
@@ -34,7 +34,7 @@ function initializeMap(viewModel) {
   };
 
 
-  map = new google.maps.Map(document.querySelector('#map-div'), mapOptions);
+  viewModel.map = new google.maps.Map(document.querySelector('#map-div'), mapOptions);
 
 
   /*
@@ -69,6 +69,7 @@ function initializeMap(viewModel) {
   */
   function createMapMarker(placeData) {
 
+
     // The next lines save location data from the search result object to local variables
     var lat = placeData.geometry.location.lat();  // latitude from the place service
     var lon = placeData.geometry.location.lng();  // longitude from the place service
@@ -78,7 +79,7 @@ function initializeMap(viewModel) {
 
     // marker is an object with additional data about the pin for a single location
     var marker = new google.maps.Marker({
-      map: map,
+      map: viewModel.map,
       position: placeData.geometry.location,
       title: name
     });
@@ -99,20 +100,31 @@ function initializeMap(viewModel) {
     });
 
     google.maps.event.addListener(marker, 'click', function() {
-      // TAN: Code added
-
       console.log("Marker Listner for ", marker);
-      infoWindow.open(map, marker);
+      clearAllMarkerBounce();
+      infoWindow.open(viewModel.map, marker);
       toggleBounce(marker);
     });
+
+    google.maps.event.addListener(infoWindow,'closeclick',function(){
+       marker.setAnimation(null); // remove the bounce
+    });
+
+    viewModel.mapSites.push( {
+      title: name,
+      marker: marker,
+      infoWindow: infoWindow,
+      isOpen: false
+    });
+
 
     // this is where the pin actually gets added to the map.
     // bounds.extend() takes in a map location object
     bounds.extend(new google.maps.LatLng(lat, lon));
     // fit the map to the new marker
-    map.fitBounds(bounds);
+    viewModel.map.fitBounds(bounds);
     // center the map
-    map.setCenter(bounds.getCenter());
+    viewModel.map.setCenter(bounds.getCenter());
   }
 
   function toggleBounce(marker) {
@@ -121,6 +133,18 @@ function initializeMap(viewModel) {
     } else {
       marker.setAnimation(google.maps.Animation.BOUNCE);
     }
+  }
+
+  function clearAllMarkerBounce() {
+    // Ensure all marker windows are closed and animation is stopped
+    // console.log("mapMarkers: ", mapMarkers())
+
+    for (var i = 0; i < viewModel.mapSites().length; i++) {
+      console.log("window title: ", viewModel.mapSites()[i]);
+      viewModel.mapMarkers()[i].setAnimation(null);
+      viewModel.mapSites()[i].infoWindow.close();
+    }    
+
   }
 
   /*
@@ -142,7 +166,7 @@ function initializeMap(viewModel) {
 
     // creates a Google place search service object. PlacesService does the work of
     // actually searching for location data.
-    var service = new google.maps.places.PlacesService(map);
+    var service = new google.maps.places.PlacesService(viewModel.map);
 
     // Iterates through the array of locations, creates a search object for each location
     for (var place in locations) {
@@ -181,5 +205,5 @@ Uncomment the code below when you're ready to implement a Google Map!
 // and adjust map bounds
 window.addEventListener('resize', function(e) {
   //Make sure the map bounds get updated on page resize
-  map.fitBounds(mapBounds);
+  viewModel.map.fitBounds(mapBounds);
 });

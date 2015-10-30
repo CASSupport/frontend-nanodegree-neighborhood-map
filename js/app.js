@@ -5,6 +5,7 @@ $(document).ready(function () {
 
     ko.applyBindings(viewModel);
 });
+var $wikiElem = $('#wikipedia-links');
 
 /* ======= Model ======= */
 
@@ -123,6 +124,7 @@ var Place = function(data) {
     this.imgAttribution = ko.observable(data.imgAttribution);
     this.nicknames = ko.observableArray(data.nicknames);
     this.address = ko.observable(data.address);
+    this.map = null;    // prepare for the map variable
 
     this.title = ko.computed(function() {
         var title;
@@ -143,10 +145,9 @@ var ViewModel = function() {
 
     self.Lat = ko.observable(12.24);
     self.Lng = ko.observable(24.54);
-
     this.placeList = ko.observableArray([]);
     this.mapMarkers = ko.observableArray([]);
-    // var mapMarkers = [];  // Track the map markers
+    this.mapSites = ko.observableArray([]);
 
     this.searchFilter = ko.observable("");
 
@@ -155,7 +156,7 @@ var ViewModel = function() {
         var value = a.name == b.name ? 0 : 
             (a.name < b.name ? -1 : 1);
         // console.log("Sorting initial: (", value, ") ", a.name, " - ", b.name);
-        return value;   // value used for debuging
+        return value;   // variable used for debuging
     });
 
     this.incrementCounter = function() {
@@ -181,6 +182,7 @@ var ViewModel = function() {
         self.addingPlaces = true;
         self.placeList.removeAll();
         self.mapMarkers.removeAll();
+        self.mapSites.removeAll();
 
         initialPlaces.forEach(function(place) { 
             var name = place.name.toUpperCase();
@@ -200,17 +202,74 @@ var ViewModel = function() {
     };
 
 
-    this.setMarker = function(clickedMarker) {
+    this.setMarker = function(clickedMapSite) {
         // Show the selected marker.
 
-        console.log("clickedMarker: ", clickedMarker.title);
+        // First close existing open map sites
+        for (var i = 0; i < viewModel.mapSites().length; i++) {
+          console.log("window title: ", viewModel.mapSites()[i]);
+          viewModel.mapMarkers()[i].setAnimation(null);
+          viewModel.mapSites()[i].infoWindow.close();
+        }    
 
-        // initializeMap.createMapMarker.infoWindow.open(map, clickedMarker);
-        // $(clickedMarker).trigger("click");
+        console.log("clicked mapSite: ", clickedMapSite.title);
 
-        // infoWindow.open(map, clickedMarker);
-        initializeMap.toggleBounce(clickedMarker);
+        if (!clickedMapSite.isOpen) {
+            clickedMapSite.marker.setAnimation(google.maps.Animation.BOUNCE);
+            clickedMapSite.infoWindow.open(self.map, clickedMapSite.marker);
+            clickedMapSite.isOpen = true;
+        } else {
+            clickedMapSite.marker.setAnimation(null);
+            clickedMapSite.infoWindow.close();
+            clickedMapSite.isOpen = false;
+        }
+
+        // Setup the Wikipedia link information
+        // Based on the Udacity video sample presented
+        //      in the Building the Move Planner App vide
+        var wikiUrl = 'http://en.wikipedia.org/w/api.' +
+                'php?action=opensearch&search=' + clickedMapSite.title + 
+                '&format=json&callback=wikiCallback';
+
+        console.log("wikiUrl: ", wikiUrl);
+
+        // Clear the wiki text so the new list can be loaded
+        $wikiElem.text("");
+        var wikiRequestTimeout = setTimeout(function() {
+            $wikiElem.text("failed to get wikipedia resources");
+        }, 8000);
+
+        $.ajax({
+            url: wikiUrl,
+            dataType: "jsonp",
+            // jsonp: "callback" (This line is redundant since it's in the URL, but retained for reference)
+            success: function ( response ) {
+                var articleList = response[1];
+
+                if (articleList.length > 0) {
+                    for (var i = 0; i < articleList.length; i++) {
+                        console.log("articleList[i]:", i, "   ", articleList[i]);
+                        var articleStr = articleList[i];
+                        var url = 'http://en.wikipedia.org/wiki/' + articleStr;
+                        $wikiElem.append('<li><a href="' + url + '">' + 
+                            articleStr + '</a></li>');
+                    };
+                }
+                else
+                {
+                    $wikiElem.text("No Wikipedia links found.");
+                }
+
+                clearTimeout(wikiRequestTimeout);
+            }
+        })                
+
+
+
     };
+
+
+
 
     this.addPlaces();
     this.currentPlace = ko.observable( self.placeList()[0] );

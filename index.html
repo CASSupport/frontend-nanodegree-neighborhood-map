@@ -28,19 +28,28 @@
 			</div>
 			-->
 
+			
 			<div class="row md-col-12" id="map-div" >
 
 				<div id="map"></div>
 				
-				<div data-bind="latitude: viewModel.Lat, longitude:viewModel.Lng, map:map" ></div>		<	
+				<div data-bind="latitude: viewModel.Lat, longitude:viewModel.Lng, map: viewModel.map" ></div>	
 			</div>
-			<div class="row md-col-12 input-group">
-				<input type="text" class="form-control" placeholder="Search for..."
-					data-bind="textInput: searchFilter">
-			</div><!-- /input-group -->
-			<ul class="list-group" data-bind="foreach: mapMarkers">
-				<li data-bind="text: title, click: $parent.setMarker"></li>
-			</ul>
+		
+			<div class="row md-col-12">
+				<div class="row md-col-6 input-group">
+					<input type="text" class="form-control" placeholder="Search for..."
+						data-bind="textInput: searchFilter">
+				</div><!-- /input-group -->
+				<ul class="list-group" data-bind="foreach: mapSites">
+					<li data-bind="text: title, click: $parent.setMarker"></li>
+				</ul>
+
+				<div class="row md-col-6 wikipedia-container">
+			        <h3 id="wikipedia-header">Relevant Wikipedia Links</h3>
+			        <ul id="wikipedia-links"></ul>
+		    	</div>
+	    	</div>
 			<!--
 			<div class="row">
 				<div class="col-md-2">
