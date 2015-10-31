@@ -8,7 +8,10 @@
 
 	<script type="text/javascript" src="js/jquery-1.11.3.min.js"></script>
 	<script type="text/javascript" src="js/bootstrap.min.js"></script>
-	<script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?libraries=places"></script>
+	<!--
+		<script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?libraries=places"></script>
+	-->
+	
 
   <meta name="viewport" content="width=device-width">
 
@@ -22,7 +25,10 @@
 			
 			<div class="row md-col-12" id="map-div" >
 
-				<div id="map"></div>
+				<div id="map">
+					<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCkmhMu9JpiGSSR52oqAaa5tOp4GGURW-w&callback=initMap&libraries=places"
+							type="text/javascript"></script>
+				</div>
 				
 				<div data-bind="latitude: viewModel.Lat, longitude:viewModel.Lng, map: viewModel.map" ></div>	
 			</div>

@@ -196,6 +196,8 @@ function initializeMap(viewModel) {
   // the locations array
   pinPoster(locations);
 
+  mapInitialized = true;
+
 }
 
 /*

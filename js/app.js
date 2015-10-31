@@ -6,6 +6,7 @@ $(document).ready(function () {
     ko.applyBindings(viewModel);
 });
 var $wikiElem = $('#wikipedia-links');
+var mapInitialized = false;
 
 /* ======= Model ======= */
 
@@ -196,7 +197,10 @@ var ViewModel = function() {
             }
         });
 
-        initializeMap(self);    // Now re-initialize the map markers
+        if (mapInitialized) {
+            console.log("calling initializeMap(self)");
+            initializeMap(self);    // Now re-initialize the map markers
+        }
 
         self.addingPlaces = false;
     };
@@ -289,4 +293,8 @@ var ViewModel = function() {
 
 
 var viewModel = new ViewModel();
-initializeMap(viewModel);
+
+function initMap() {
+    console.log("initMap Called...");
+    initializeMap(viewModel);   
+}
