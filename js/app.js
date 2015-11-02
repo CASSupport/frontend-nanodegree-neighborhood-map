@@ -119,38 +119,39 @@ var initialPlaces = [
 
 
 var Place = function(data) {
-    this.clickCount = ko.observable(data.clickCount);
-    this.name = ko.observable(data.name);
-    this.imgSrc = ko.observable(data.imgSrc);
-    this.imgAttribution = ko.observable(data.imgAttribution);
-    this.nicknames = ko.observableArray(data.nicknames);
-    this.address = ko.observable(data.address);
-    this.map = null;    // prepare for the map variable
+    var self = this;
+    self.clickCount = ko.observable(data.clickCount);
+    self.name = ko.observable(data.name);
+    self.imgSrc = ko.observable(data.imgSrc);
+    self.imgAttribution = ko.observable(data.imgAttribution);
+    self.nicknames = ko.observableArray(data.nicknames);
+    self.address = ko.observable(data.address);
+    self.map = null;    // prepare for the map variable
 
-    this.title = ko.computed(function() {
+    self.title = ko.computed(function() {
         var title;
-        var clicks = this.clickCount();
+        var clicks = self.clickCount();
         if (clicks < 10) {
             title = 'Newborn';
         } else {
             title = 'other'; // I didn't code all the options
         }
         return title;
-    }, this);
+    }, self);
 };
 
 var ViewModel = function() {
     var self = this;
     var filterTimeout;
-    this.addingPlaces = false;
+    self.addingPlaces = false;
 
     self.Lat = ko.observable(12.24);
     self.Lng = ko.observable(24.54);
-    this.placeList = ko.observableArray([]);
-    this.mapMarkers = ko.observableArray([]);
-    this.mapSites = ko.observableArray([]);
+    self.placeList = ko.observableArray([]);
+    self.mapMarkers = ko.observableArray([]);
+    self.mapSites = ko.observableArray([]);
 
-    this.searchFilter = ko.observable("");
+    self.searchFilter = ko.observable("");
 
     initialPlaces.sort(function(a,b) {
         // use a.name() because of the observables!
@@ -160,11 +161,11 @@ var ViewModel = function() {
         return value;   // variable used for debuging
     });
 
-    this.incrementCounter = function() {
+    self.incrementCounter = function() {
         self.currentPlace().clickCount(self.currentPlace().clickCount() + 1);
     };
 
-    this.filterChanged = function() {
+    self.filterChanged = function() {
         // Start a timer to allow the user to finish typing
         //  otherwise the markers are not filtered properly
         clearTimeout(filterTimeout);    // clear any existing timer
@@ -178,7 +179,7 @@ var ViewModel = function() {
         filterTimeout = setTimeout(self.addPlaces, 500);
     };
 
-    this.addPlaces = function() {
+    self.addPlaces = function() {
 
         self.addingPlaces = true;
         self.placeList.removeAll();
@@ -206,7 +207,7 @@ var ViewModel = function() {
     };
 
 
-    this.setMarker = function(clickedMapSite) {
+    self.setMarker = function(clickedMapSite) {
         // Show the selected marker.
 
         // First close existing open map sites
@@ -233,7 +234,7 @@ var ViewModel = function() {
     };
 
 
-    this.loadWikiElements = function(searchName) {
+    self.loadWikiElements = function(searchName) {
         // Setup the Wikipedia link information
         // Based on the Udacity video sample presented
         //      in the Building the Move Planner App vide
@@ -263,7 +264,7 @@ var ViewModel = function() {
                         var url = 'http://en.wikipedia.org/wiki/' + articleStr;
                         $wikiElem.append('<li><a href="' + url + '">' + 
                             articleStr + '</a></li>');
-                    };
+                    }
                 }
                 else
                 {
@@ -272,16 +273,16 @@ var ViewModel = function() {
 
                 clearTimeout(wikiRequestTimeout);
             }
-        })                
+        });     
 
     };
 
 
-    this.addPlaces();
-    this.currentPlace = ko.observable( self.placeList()[0] );
+    self.addPlaces();
+    self.currentPlace = ko.observable( self.placeList()[0] );
 
     // Call the add places when the search filter has been changed
-    this.searchFilter.subscribe(function () {
+    self.searchFilter.subscribe(function () {
         self.filterChanged();                
     });
 
@@ -296,5 +297,5 @@ var viewModel = new ViewModel();
 
 function initMap() {
     console.log("initMap Called...");
-    initializeMap(viewModel);   
+    initializeMap(viewModel);  
 }
