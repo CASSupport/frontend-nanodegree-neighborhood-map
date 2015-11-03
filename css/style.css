@@ -1,11 +1,16 @@
+/* CSS 3-character color converter reference used:
+	http://maettig.com/?page=PHP/CSS_Color_Converter
+*/
+
+
 body {
 	font-family: "Lato", sans-serif;
-	color: #747704;
+	color: #770; /* 747704 */
 	font-weight: 300;
 }
 
 .text-muted {
-	color: #bcbbbb;
+	color: #bbb; /* bcbbbb */
 }
 
 .text-thin {
@@ -21,26 +26,26 @@ body {
 }
 
 hr {
-    border: none;
-    height: 5px;
-    color: #bcbbbb; /* old IE */
-    background-color: #bcbbbb; /* Modern Browsers */
+	border: none;
+	height: 5px;
+	color: #bbb; /* bcbbbb */ /* old IE */
+	background-color: #bbb; /* bcbbbb */ /* Modern Browsers */
 }
 
 h3 {
 	font-weight: 300;
-	color: #747704;
+	color: #770; /* 747704 */
 }
 
 h4 {
 	font-weight: 300;
-	color: #747704;	
+	color: #770; /* 747704 */
 	font-size: 12px;
 }
 
 #map{
-    width: 400px;
-    height: 80%;
+	width: 400px;
+	height: 80%;
 }
 
 #map-div {
