@@ -37,9 +37,9 @@
 				
 				<div class="input-group">
 					<input type="text" class="form-control" placeholder="Search for..."
-						data-bind="textInput: searchFilter">
+						data-bind="textInput: filterQuery">
 				</div><!-- /input-group -->
-				<ul class="list-group" data-bind="foreach: mapSites">
+				<ul class="list-group" data-bind="foreach: filteredLocations">
 					<li data-bind="text: title, click: $parent.setMarker"></li>
 				</ul>
 

@@ -24,7 +24,7 @@ Start here! initializeMap() is called when page is loaded.
 */
 function initializeMap(viewModel) {
 
-	console.log("Initilizing Map");
+	console.log("******* initializeMap Called");
 
 	var self = this;
 	var locations;
@@ -102,6 +102,7 @@ function initializeMap(viewModel) {
 		google.maps.event.addListener(marker, 'click', function() {
 			console.log("Marker Listner for ", marker);
 			clearAllMarkerBounce();
+			console.log("after clearAllMarkerBounce call");
 			infoWindow.open(viewModel.map, marker);
 			toggleBounce(marker);
 			viewModel.loadWikiElements(marker.title);
@@ -111,16 +112,12 @@ function initializeMap(viewModel) {
 			 marker.setAnimation(null); // remove the bounce
 		});
 
-		viewModel.mapSites.push( {
+		viewModel.mapSites.push( { 
 			title: name,
 			marker: marker,
 			infoWindow: infoWindow,
 			isOpen: false
 		});
-
-
-
-
 
 		// this is where the pin actually gets added to the map.
 		// bounds.extend() takes in a map location object
@@ -141,13 +138,14 @@ function initializeMap(viewModel) {
 
 	function clearAllMarkerBounce() {
 		// Ensure all marker windows are closed and animation is stopped
-		// console.log("mapMarkers: ", mapMarkers())
+		// console.log("clearing mapSites: ", viewModel.mapSites());
+		// console.log("clearing mapMarkers: ", viewModel.mapMarkers());
 
 		for (var i = 0; i < viewModel.mapSites().length; i++) {
-			console.log("window title: ", viewModel.mapSites()[i]);
-			viewModel.mapMarkers()[i].setAnimation(null);
-			viewModel.mapSites()[i].infoWindow.close();
-		}    
+		  // console.log("window title: ", viewModel.mapSites()[i]);
+		  viewModel.mapMarkers()[i].setAnimation(null);
+		  viewModel.mapSites()[i].infoWindow.close();
+		} 
 
 	}
 

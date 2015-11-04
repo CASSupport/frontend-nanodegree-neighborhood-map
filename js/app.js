@@ -143,6 +143,12 @@ var ViewModel = function() {
 
 	self.searchFilter = ko.observable("");
 
+	// 11/3/2015 Changing how the filter query is used.
+	//		prior version had problems with delayed typing
+	self.filterQuery = ko.observable("");
+	self.locations = ko.observableArray();
+	self.filteredLocations = ko.observableArray();
+
 	initialPlaces.sort(function(a,b) {
 		// use a.name() because of the observables!
 		var value = a.name == b.name ? 0 : 
@@ -156,6 +162,9 @@ var ViewModel = function() {
 	};
 
 	self.filterChanged = function() {
+
+		return;
+
 		// Start a timer to allow the user to finish typing
 		//  otherwise the markers are not filtered properly
 		clearTimeout(filterTimeout);    // clear any existing timer
@@ -169,10 +178,12 @@ var ViewModel = function() {
 		}
 
 		
-		filterTimeout = setTimeout(self.addPlaces, 500);
+		filterTimeout = setTimeout(self.addPlaces, 200);
 	};
 
 	self.addPlaces = function() {
+
+		// console.log("******* addPlaces Called");
 
 		self.addingPlaces = true;
 		self.placeList.removeAll();
@@ -180,12 +191,21 @@ var ViewModel = function() {
 		self.mapSites.removeAll();
 
 		initialPlaces.forEach(function(place) { 
+			// Filter on the title rather than the name.
+			//		This will provide the proper name that is
+			//		displayed in the list, rather than the full
+			//		detailed name
 			var name = place.name.toUpperCase();
+			console.log("place: ", place);
+			// var name = place.title.toUpperCase();
+			
 			var filter = self.searchFilter();
 			console.log("Search Filter: ", filter);
 			if (filter !== null) {
-				if (name.includes(filter.toUpperCase()))
+				if (name.includes(filter.toUpperCase())) {
+					console.log("name: ", name, " includes: ", filter);
 					self.placeList.push( new Place(place) );
+				}
 			} else {
 				self.placeList.push( new Place(place) );
 			}
@@ -293,18 +313,86 @@ var ViewModel = function() {
 	self.currentPlace = ko.observable( self.placeList()[0] );
 
 	// Call the add places when the search filter has been changed
-	self.searchFilter.subscribe(function () {
-		self.filterChanged();                
-	});
-
+	/*
+		self.searchFilter.subscribe(function () {
+			self.filterChanged();                
+		});
+	*/
 
 
 };
 
 
-
-
 var viewModel = new ViewModel();
+// set the default filter to all sites
+viewModel.filteredLocations = viewModel.mapSites;
+
+
+
+viewModel.filterQuery.subscribe( function ( value ) {
+
+	viewModel.wikiSites.removeAll();
+
+
+
+	if (mapInitialized) {
+		console.log("filter with value: ", value);
+		if (value == "") {
+			// When no filtered locations are found, show the entire list
+			viewModel.filteredLocations = viewModel.mapSites;
+		}
+		else {
+
+			// When filtering remove the reference to mapSites
+			viewModel.filteredLocations = ko.observableArray();
+
+			// Setup the filter
+		    viewModel.filteredLocations( viewModel.mapSites()
+		        .filter( function ( el ) {
+		            return el.title.toLowerCase()
+		                .indexOf( value.toLowerCase() ) > -1;
+		        } ) );
+
+			// First hide all the existing markers
+			viewModel.mapSites().forEach( function(site) {
+				
+				// console.log("marker title:", site.title);
+				site.marker.setVisible(false);
+			});
+		}
+
+
+		// Set the map markers to show only the filtered selection
+		var bounds = window.mapBounds;
+
+		viewModel.filteredLocations().forEach( function(site) {
+			
+			// console.log("marker title:", site.title);
+			site.marker.setVisible(true);
+
+			// Next we setup the markers to ensure we can change 
+			//	the map extents (position based on markers)
+			var lat = site.marker.position.lat();  // latitude from the place service
+			var lon = site.marker.position.lng();  // longitude from the place service
+
+			bounds.extend(new google.maps.LatLng(lat, lon));
+			// fit the map to the new marker
+			viewModel.map.fitBounds(bounds);
+			// center the map
+			viewModel.map.setCenter(bounds.getCenter());
+
+		});
+
+
+		
+		// refresh the new map bounds
+		window.mapBounds = new google.maps.LatLngBounds();			
+	
+		// console.log("filteredLocations: ", viewModel.filteredLocations().length);
+
+	}
+
+} );
 
 function initMap() {
 	console.log("initMap Called...");
