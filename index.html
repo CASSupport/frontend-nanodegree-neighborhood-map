@@ -39,7 +39,7 @@
 					<input type="text" class="form-control" placeholder="Search for..."
 						data-bind="textInput: filterQuery">
 				</div><!-- /input-group -->
-				<ul class="list-group" data-bind="foreach: filteredLocations">
+				<ul class="list-group" data-bind="foreach: filteredLocationsBound">
 					<li data-bind="text: title, click: $parent.setMarker"></li>
 				</ul>
 

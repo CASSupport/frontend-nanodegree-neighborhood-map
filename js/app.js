@@ -147,7 +147,10 @@ var ViewModel = function() {
 	//		prior version had problems with delayed typing
 	self.filterQuery = ko.observable("");
 	self.locations = ko.observableArray();
+	// self.filteredLocationsBound = ko.observableArray();
 	self.filteredLocations = ko.observableArray();
+
+	self.filteredLocationsBound = self.filteredLocations;
 
 	initialPlaces.sort(function(a,b) {
 		// use a.name() because of the observables!
@@ -325,28 +328,43 @@ var ViewModel = function() {
 
 var viewModel = new ViewModel();
 // set the default filter to all sites
-viewModel.filteredLocations = viewModel.mapSites;
+// viewModel.filteredLocationsBound = viewModel.mapSites;
 
+viewModel.mapSites.subscribe( function ( value ) {
+	// When a map site has changed, update the filter locations
+    var value = viewModel.filterQuery();
+    if (value == "") {
+	    viewModel.filteredLocations( viewModel.mapSites()
+	        .filter( function (el ) {
+	        	return true;
+	        } ) );
+    }
+    else {
+	    viewModel.filteredLocations( viewModel.mapSites()
+	        .filter( function ( el ) {
+	            return el.title.toLowerCase()
+	                .indexOf( value.toLowerCase() ) > -1;
+	        } ) );
+	}
 
+} );
 
 viewModel.filterQuery.subscribe( function ( value ) {
 
 	viewModel.wikiSites.removeAll();
 
-
-
 	if (mapInitialized) {
 		console.log("filter with value: ", value);
 		if (value == "") {
-			// When no filtered locations are found, show the entire list
-			viewModel.filteredLocations = viewModel.mapSites;
+			// Show all the map sites (locations)
+			viewModel.filteredLocations( viewModel.mapSites()
+		        .filter( function ( el ) {
+		            return true;
+		        } ) );
 		}
 		else {
 
-			// When filtering remove the reference to mapSites
-			viewModel.filteredLocations = ko.observableArray();
-
-			// Setup the filter
+			// Setup the filter based on the entred text
 		    viewModel.filteredLocations( viewModel.mapSites()
 		        .filter( function ( el ) {
 		            return el.title.toLowerCase()
@@ -355,17 +373,19 @@ viewModel.filterQuery.subscribe( function ( value ) {
 
 			// First hide all the existing markers
 			viewModel.mapSites().forEach( function(site) {
-				
 				// console.log("marker title:", site.title);
 				site.marker.setVisible(false);
 			});
+
+			// viewModel.filteredLocationsBound = viewModel.filteredLocations;
+			// viewModel.filteredLocationsBound.valueHasMutated();
 		}
 
 
 		// Set the map markers to show only the filtered selection
 		var bounds = window.mapBounds;
 
-		viewModel.filteredLocations().forEach( function(site) {
+		viewModel.filteredLocationsBound().forEach( function(site) {
 			
 			// console.log("marker title:", site.title);
 			site.marker.setVisible(true);
@@ -388,7 +408,9 @@ viewModel.filterQuery.subscribe( function ( value ) {
 		// refresh the new map bounds
 		window.mapBounds = new google.maps.LatLngBounds();			
 	
-		// console.log("filteredLocations: ", viewModel.filteredLocations().length);
+		console.log("mapSites: ", viewModel.mapSites().length);
+		console.log("filteredLocations: ", viewModel.filteredLocations().length);
+		console.log("filteredLocationsBound: ", viewModel.filteredLocationsBound().length);
 
 	}
 
@@ -397,4 +419,6 @@ viewModel.filterQuery.subscribe( function ( value ) {
 function initMap() {
 	console.log("initMap Called...");
 	initializeMap(viewModel);  
+
+
 }
